@@ -40,14 +40,17 @@ DuitIN adalah aplikasi web pencatatan keuangan personal yang dirancang untuk mem
    npm install
    ```
 
-3. Jalankan server backend (port 5000):
-   ```bash
-   node server/index.js
-   ```
-
-4. Jalankan frontend development server (port 5173):
+3. Jalankan backend dan frontend bersamaan:
    ```bash
    npm run dev
    ```
+   Perintah ini menjalankan backend di port 5000 dan frontend di port 5173. Jangan menjalankan `node server/index.js` secara terpisah saat memakai perintah ini.
 
-5. Buka `http://localhost:5173` di peramban web.
+   Jika hanya ingin menjalankan backend:
+   ```bash
+   npm run server
+   ```
+
+4. Buka `http://localhost:5173` di peramban web.
+
+> Catatan: fitur SQLite bawaan `node:sqlite` membutuhkan Node.js 22.5.0 atau lebih baru. Cek versi dengan `node --version`.
