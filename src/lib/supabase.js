@@ -1,9 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
+const DEFAULT_SUPABASE_URL = 'https://uhabhiowszwccwpbxbaz.supabase.co';
+const DEFAULT_SUPABASE_KEY = 'sb_publishable_rSbBNZLHBSxAxgtCy6LoXg_Cx10fTz2';
+
 const supabaseUrl = 
   import.meta.env.VITE_SUPABASE_URL || 
   import.meta.env.VITE_URL || 
-  '';
+  DEFAULT_SUPABASE_URL;
 
 // Ambil publishable/anon key yang aman untuk browser
 function resolveClientKey() {
@@ -11,7 +14,8 @@ function resolveClientKey() {
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
     import.meta.env.VITE_SUPABASE_ANON_KEY,
     import.meta.env.VITE_PUBLISHABLE_KEY,
-    import.meta.env.VITE_ANON_KEY
+    import.meta.env.VITE_ANON_KEY,
+    DEFAULT_SUPABASE_KEY
   ];
 
   for (const k of candidates) {
