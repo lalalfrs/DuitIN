@@ -8,6 +8,21 @@ export function formatRupiah(amount) {
   }).format(num);
 }
 
+// Memformat angka menjadi string dengan pemisah ribuan titik (contoh: 300000 -> "300.000")
+export function formatNumberWithDots(val) {
+  if (val === null || val === undefined || val === '') return '';
+  const clean = String(val).replace(/\D/g, '');
+  if (!clean) return '';
+  return new Intl.NumberFormat('id-ID').format(Number(clean));
+}
+
+// Mengurai string berpemisah titik menjadi angka murni (contoh: "300.000" -> 300000)
+export function parseNumberFromDots(val) {
+  if (val === null || val === undefined || val === '') return 0;
+  const clean = String(val).replace(/\D/g, '');
+  return clean ? Number(clean) : 0;
+}
+
 export function formatDateIndo(dateString) {
   if (!dateString) return '-';
   try {

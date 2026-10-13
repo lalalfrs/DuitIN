@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CloseIcon } from './Icons';
+import { formatNumberWithDots, parseNumberFromDots } from '../utils/formatters';
 
 const COLOR_OPTIONS = [
   { label: 'Biru Utama', value: '#006199' },
@@ -22,7 +23,7 @@ export function AccountModal({ isOpen, onClose, onSave, editingAccount }) {
     if (editingAccount) {
       setName(editingAccount.name || '');
       setType(editingAccount.type || 'bank');
-      setInitialBalance(editingAccount.initial_balance !== undefined ? String(editingAccount.initial_balance) : '0');
+      setInitialBalance(editingAccount.initial_balance !== undefined ? formatNumberWithDots(editingAccount.initial_balance) : '0');
       setColor(editingAccount.color || '#006199');
       setAccountNumber(editingAccount.account_number || '');
     } else {
@@ -61,7 +62,7 @@ export function AccountModal({ isOpen, onClose, onSave, editingAccount }) {
       await onSave({
         name: name.trim(),
         type,
-        initial_balance: parseFloat(initialBalance) || 0,
+        initial_balance: parseNumberFromDots(initialBalance) || 0,
         color,
         account_number: accountNumber.trim()
       });
@@ -140,17 +141,19 @@ export function AccountModal({ isOpen, onClose, onSave, editingAccount }) {
             <label htmlFor="acc-init-bal" className="form-label">
               Saldo Awal (Rp) <span className="text-required">*</span>
             </label>
-            <input
-              id="acc-init-bal"
-              type="number"
-              min="0"
-              step="1000"
-              className="form-input tabular-nums"
-              placeholder="0"
-              value={initialBalance}
-              onChange={e => setInitialBalance(e.target.value)}
-              required
-            />
+            <div className="input-rupiah-wrapper">
+              <span className="input-rupiah-prefix">Rp</span>
+              <input
+                id="acc-init-bal"
+                type="text"
+                inputMode="numeric"
+                className="form-input tabular-nums input-with-prefix"
+                placeholder="0"
+                value={initialBalance}
+                onChange={e => setInitialBalance(formatNumberWithDots(e.target.value))}
+                required
+              />
+            </div>
             <span className="form-hint">Saldo awal sebelum pencatatan transaksi di aplikasi.</span>
           </div>
 

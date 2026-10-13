@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CloseIcon, ArrowDownIcon, ArrowUpIcon } from './Icons';
+import { formatNumberWithDots, parseNumberFromDots } from '../utils/formatters';
 
 export function TransactionModal({ 
   isOpen, 
@@ -21,7 +22,7 @@ export function TransactionModal({
   useEffect(() => {
     if (editingTransaction) {
       setType(editingTransaction.type || 'expense');
-      setAmount(editingTransaction.amount ? String(editingTransaction.amount) : '');
+      setAmount(editingTransaction.amount ? formatNumberWithDots(editingTransaction.amount) : '');
       setAccountId(editingTransaction.account_id ? String(editingTransaction.account_id) : '');
       setCategoryId(editingTransaction.category_id ? String(editingTransaction.category_id) : '');
       setDate(editingTransaction.date || new Date().toISOString().split('T')[0]);
@@ -62,13 +63,24 @@ export function TransactionModal({
 
   const filteredCategories = categories.filter(c => c.type === type);
 
+  function handleAmountChange(e) {
+    const formatted = formatNumberWithDots(e.target.value);
+    setAmount(formatted);
+  }
+
+  function handleAddQuickAmount(addValue) {
+    const current = parseNumberFromDots(amount);
+    const updated = current + addValue;
+    setAmount(formatNumberWithDots(updated));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (!accountId) {
       setError('Silakan pilih akun / dompet transaksi.');
       return;
     }
-    const parsedAmount = parseFloat(amount);
+    const parsedAmount = parseNumberFromDots(amount);
     if (!parsedAmount || parsedAmount <= 0) {
       setError('Nominal transaksi harus lebih dari Rp 0.');
       return;
@@ -150,20 +162,30 @@ export function TransactionModal({
 
           <div className="form-group">
             <label htmlFor="tx-amount" className="form-label">
-              Nominal (Rp) <span className="text-required">*</span>
+              Nominal Transaksi <span className="text-required">*</span>
             </label>
-            <input
-              id="tx-amount"
-              type="number"
-              min="1"
-              step="1000"
-              className="form-input form-input-lg tabular-nums"
-              placeholder="0"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              required
-              autoFocus
-            />
+            <div className="input-rupiah-wrapper">
+              <span className="input-rupiah-prefix">Rp</span>
+              <input
+                id="tx-amount"
+                type="text"
+                inputMode="numeric"
+                className="form-input form-input-lg tabular-nums input-with-prefix"
+                placeholder="0"
+                value={amount}
+                onChange={handleAmountChange}
+                required
+                autoFocus
+              />
+            </div>
+            {/* Quick add chips */}
+            <div className="quick-amount-chips" role="group" aria-label="Nominal cepat">
+              <button type="button" className="quick-chip-btn" onClick={() => handleAddQuickAmount(10000)}>+10.000</button>
+              <button type="button" className="quick-chip-btn" onClick={() => handleAddQuickAmount(50000)}>+50.000</button>
+              <button type="button" className="quick-chip-btn" onClick={() => handleAddQuickAmount(100000)}>+100.000</button>
+              <button type="button" className="quick-chip-btn" onClick={() => handleAddQuickAmount(300000)}>+300.000</button>
+              <button type="button" className="quick-chip-btn" onClick={() => handleAddQuickAmount(500000)}>+500.000</button>
+            </div>
           </div>
 
           <div className="form-row">

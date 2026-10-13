@@ -1368,6 +1368,61 @@
   color: var(--text-subtle);
 }
 
+/* Rupiah Input Styling with Prefix */
+.input-rupiah-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-rupiah-prefix {
+  position: absolute;
+  left: 0.85rem;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+.input-with-prefix {
+  padding-left: 2.85rem !important;
+}
+
+/* Quick Nominal Chips */
+.quick-amount-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
+}
+
+.quick-chip-btn {
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  touch-action: manipulation;
+}
+
+.quick-chip-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-main);
+}
+
+.quick-chip-btn:active {
+  transform: scale(0.95);
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
 /* Type Toggle Group */
 .type-toggle-group {
   display: grid;
