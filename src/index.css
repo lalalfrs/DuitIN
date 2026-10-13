@@ -1,0 +1,137 @@
+:root {
+  /* User-requested Palette */
+  --color-primary: #006199;
+  --color-primary-hover: #004d7a;
+  --color-secondary: #8ACFF8;
+  --color-accent-soft: #F4EB6C;
+  --color-accent-vibrant: #FFD444;
+
+  /* Income & Expense indicators */
+  --color-income: #10B981;
+  --color-income-bg: #ECFDF5;
+  --color-expense: #EF4444;
+  --color-expense-bg: #FEF2F2;
+
+  /* Light Theme */
+  --bg-page: #F6F9FC;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-input: #FFFFFF;
+  --text-main: #0F172A;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
+  --border-color: #E2E8F0;
+  --border-subtle: #EDF2F7;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  --focus-ring: 0 0 0 3px rgba(0, 97, 153, 0.25);
+  --modal-overlay: rgba(15, 23, 42, 0.55);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0B131E;
+  --bg-card: #131F30;
+  --bg-subtle: #1C2B42;
+  --bg-input: #18263A;
+  --text-main: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-subtle: #64748B;
+  --border-color: #1E314B;
+  --border-subtle: #18273B;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --focus-ring: 0 0 0 3px rgba(138, 207, 248, 0.35);
+  --modal-overlay: rgba(0, 0, 0, 0.75);
+
+  --color-income: #34D399;
+  --color-income-bg: rgba(52, 211, 153, 0.12);
+  --color-expense: #F87171;
+  --color-expense-bg: rgba(248, 113, 113, 0.12);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow-x: hidden;
+}
+
+/* Tabular figures for financial numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Accessibility focus indicator */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] :focus-visible {
+  outline-color: var(--color-secondary);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  color: inherit;
+  font-size: 0.9375rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* Scrollbar refinement */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
