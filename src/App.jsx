@@ -21,6 +21,19 @@ import { TransactionModal } from './components/TransactionModal';
 import { DeleteConfirmModal } from './components/DeleteConfirmModal';
 import { TrendChart } from './components/TrendChart';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
+import { 
+  getAccounts, 
+  createAccount, 
+  updateAccount, 
+  deleteAccount, 
+  getCategories, 
+  getTransactions, 
+  createTransaction, 
+  updateTransaction, 
+  deleteTransaction, 
+  getAnalyticsSummary 
+} from './services/supabaseService';
+import { isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
   // Theme state: light or dark
@@ -71,39 +84,40 @@ export default function App() {
 
   // Fetch summary and accounts
   const fetchSummaryAndAccounts = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      setError('Kredensial Supabase belum diatur di file .env.');
+      return;
+    }
+
     try {
       const [sumRes, accRes, catRes] = await Promise.all([
-        fetch('/api/analytics/summary'),
-        fetch('/api/accounts'),
-        fetch('/api/categories')
+        getAnalyticsSummary(),
+        getAccounts(),
+        getCategories()
       ]);
 
-      const sumJson = await sumRes.json();
-      const accJson = await accRes.json();
-      const catJson = await catRes.json();
-
-      if (sumJson.success) setSummaryData(sumJson.data);
-      if (accJson.success) setAccounts(accJson.data);
-      if (catJson.success) setCategories(catJson.data);
+      if (sumRes.success) setSummaryData(sumRes.data);
+      if (accRes.success) setAccounts(accRes.data);
+      if (catRes.success) setCategories(catRes.data);
     } catch (err) {
       console.error('Gagal mengambil ringkasan:', err);
-      setError('Gagal terhubung ke database. Pastikan server backend sedang berjalan.');
+      setError(err.message || 'Gagal terhubung ke database Supabase.');
     }
   }, []);
 
   // Fetch transactions with active filters
   const fetchTransactions = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (timeframe !== 'all') params.append('timeframe', timeframe);
-      if (filterAccount !== 'all') params.append('account_id', filterAccount);
-      if (filterType !== 'all') params.append('type', filterType);
-      if (searchQuery.trim()) params.append('search', searchQuery.trim());
+    if (!isSupabaseConfigured) return;
 
-      const res = await fetch(`/api/transactions?${params.toString()}`);
-      const json = await res.json();
-      if (json.success) {
-        setTransactions(json.data);
+    try {
+      const res = await getTransactions({
+        timeframe,
+        account_id: filterAccount,
+        type: filterType,
+        search: searchQuery
+      });
+      if (res.success) {
+        setTransactions(res.data);
       }
     } catch (err) {
       console.error('Gagal mengambil daftar transaksi:', err);
@@ -128,20 +142,11 @@ export default function App() {
 
   // Handle Account Actions
   async function handleSaveAccount(accountData) {
-    const isEdit = Boolean(editingAccount);
-    const url = isEdit ? `/api/accounts/${editingAccount.id}` : '/api/accounts';
-    const method = isEdit ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(accountData)
-    });
-    const json = await res.json();
-    if (!json.success) {
-      throw new Error(json.message || 'Gagal menyimpan akun.');
+    if (editingAccount) {
+      await updateAccount(editingAccount.id, accountData);
+    } else {
+      await createAccount(accountData);
     }
-
     await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
   }
 
@@ -163,16 +168,11 @@ export default function App() {
       onConfirm: async () => {
         setDeleteModalConfig(prev => ({ ...prev, isDeleting: true }));
         try {
-          const res = await fetch(`/api/accounts/${acc.id}`, { method: 'DELETE' });
-          const json = await res.json();
-          if (!json.success) {
-            alert(json.message || 'Gagal menghapus akun.');
-          } else {
-            setDeleteModalConfig(prev => ({ ...prev, isOpen: false }));
-            await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
-          }
+          await deleteAccount(acc.id);
+          setDeleteModalConfig(prev => ({ ...prev, isOpen: false }));
+          await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
         } catch (err) {
-          alert('Terjadi kesalahan saat menghapus akun: ' + err.message);
+          alert('Terjadi kesalahan saat menghapus akun: ' + (err.message || err));
         } finally {
           setDeleteModalConfig(prev => ({ ...prev, isDeleting: false }));
         }
@@ -182,20 +182,11 @@ export default function App() {
 
   // Handle Transaction Actions
   async function handleSaveTransaction(txData) {
-    const isEdit = Boolean(editingTx);
-    const url = isEdit ? `/api/transactions/${editingTx.id}` : '/api/transactions';
-    const method = isEdit ? 'PUT' : 'POST';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(txData)
-    });
-    const json = await res.json();
-    if (!json.success) {
-      throw new Error(json.message || 'Gagal menyimpan transaksi.');
+    if (editingTx) {
+      await updateTransaction(editingTx.id, txData);
+    } else {
+      await createTransaction(txData);
     }
-
     await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
   }
 
@@ -217,16 +208,11 @@ export default function App() {
       onConfirm: async () => {
         setDeleteModalConfig(prev => ({ ...prev, isDeleting: true }));
         try {
-          const res = await fetch(`/api/transactions/${tx.id}`, { method: 'DELETE' });
-          const json = await res.json();
-          if (!json.success) {
-            alert(json.message || 'Gagal menghapus transaksi.');
-          } else {
-            setDeleteModalConfig(prev => ({ ...prev, isOpen: false }));
-            await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
-          }
+          await deleteTransaction(tx.id);
+          setDeleteModalConfig(prev => ({ ...prev, isOpen: false }));
+          await Promise.all([fetchSummaryAndAccounts(), fetchTransactions()]);
         } catch (err) {
-          alert('Terjadi kesalahan saat menghapus transaksi: ' + err.message);
+          alert('Terjadi kesalahan saat menghapus transaksi: ' + (err.message || err));
         } finally {
           setDeleteModalConfig(prev => ({ ...prev, isDeleting: false }));
         }
@@ -296,7 +282,14 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="main-content">
-        {error && (
+        {!isSupabaseConfigured ? (
+          <div className="alert-error main-alert" role="alert" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '0.4rem', backgroundColor: 'rgba(0, 97, 153, 0.12)', borderColor: 'var(--color-primary)', color: 'var(--text-main)' }}>
+            <strong style={{ color: 'var(--color-primary)', fontSize: '0.95rem' }}>Konfigurasi Supabase Diperlukan</strong>
+            <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: '1.5' }}>
+              Aplikasi ini sekarang terhubung langsung ke Supabase. Salin file <code>.env.example</code> menjadi <code>.env</code> lalu isi <code>VITE_SUPABASE_URL</code> dan <code>VITE_SUPABASE_ANON_KEY</code> Anda. Skema tabel database tersedia di <code>supabase/schema.sql</code>.
+            </p>
+          </div>
+        ) : error ? (
           <div className="alert-error main-alert" role="alert">
             <span>{error}</span>
             <button 
@@ -311,7 +304,7 @@ export default function App() {
               Coba Lagi
             </button>
           </div>
-        )}
+        ) : null}
 
         {/* SECTION 1: Total Saldo & Kantong Keuangan (Cash, BCA, GoPay, dst) */}
         <section className="section-wallets" aria-labelledby="wallet-section-title">

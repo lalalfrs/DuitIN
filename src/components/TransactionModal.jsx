@@ -83,8 +83,8 @@ export function TransactionModal({
 
     try {
       await onSave({
-        account_id: parseInt(accountId, 10),
-        category_id: categoryId ? parseInt(categoryId, 10) : null,
+        account_id: accountId,
+        category_id: categoryId || null,
         type,
         amount: parsedAmount,
         date,
